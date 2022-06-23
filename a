@@ -1,0 +1,104 @@
+
+
+local ok = loadstring(game:HttpGet('https://raw.githubusercontent.com/Belkworks/quick/master/init.lua'))();
+local s = ok.Service;
+local tweenService = s.TweenService;
+local players = s.Players;
+local replicatedStorage = s.ReplicatedStorage;
+
+local client = players.LocalPlayer;
+
+
+local function tween(obj, time, ...)
+    local tween = tweenService:Create(obj, TweenInfo.new(time), ...);
+    tween:Play();
+    tween.Completed:Connect(function() tween:Destroy() end);
+	return tween;
+end;
+
+local character = client.Character or client.CharacterAdded:Wait();
+client.CharacterAdded:Connect(function(char)
+    character = char;
+end);
+
+--UI Library components start here
+
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+
+local Window = Library.CreateLib("Giant Simulator GUI", "Midnight")
+
+local MainTab = Window:NewTab("Main")
+
+local Mainfarmsection = MainTab:NewSection("Main")
+
+
+local function getOrbsFolder()
+    for _, f in next, game:GetService("Workspace").Scene:GetChildren() do
+        if type(tonumber(f.Name)) == 'number' then
+            return f;
+        end;
+    end;
+end;
+
+Mainfarmsection:NewToggle("Auto Swing", "Auto swings for you so you dont have to click", function(state)
+    getgenv().Autoswingstate = state
+end)
+
+game:GetService("RunService").RenderStepped:Connect(function()
+	if getgenv().Autoswingstate then
+        replicatedStorage.Aero.AeroRemoteServices.GameService.WeaponAttackStart:FireServer();
+            wait(0.03);
+        replicatedStorage.Aero.AeroRemoteServices.GameService.WeaponAnimComplete:FireServer();
+    end
+end)
+
+
+Mainfarmsection:NewToggle("Orbs Farm", "Auto collets orbs", function(state)
+    getgenv().Orbsfarmstate = state
+end)
+
+game:GetService("RunService").RenderStepped:Connect(function()
+	if getgenv().Orbsfarmstate then
+         tween(character.HumanoidRootPart, client:DistanceFromCharacter(getOrbsFolder().ResourceNode.Prefab:GetParent().Position) / 10, { CFrame = getOrbsFolder().ResourceNode.Prefab:GetParent().CFrame + Vector3.new(0, 1, 0) }, Enum.EasingStyle.Linear);
+        
+    end
+end)
+
+Mainfarmsection:NewToggle("Golden Egg Farm", "Auto collets golden eggs", function(state)
+    getgenv().Goldeneggfarmstate = state
+end)
+
+game:GetService("RunService").RenderStepped:Connect(function()
+	if getgenv().Goldeneggfarmstate and game:GetService("Workspace").Egg then
+        character.HumanoidRootPart.CFrame = game:GetService("Workspace").Egg.CFrame
+    end
+end)
+
+
+local Bossfarmsection = MainTab:NewSection("Boss Farms")
+
+
+Bossfarmsection:NewToggle("Terminator Farm", "Autofarms the Terminator boss", function(state)
+    getgenv().Terminatorfarmstate = state
+end)
+
+
+
+game:GetService("RunService").RenderStepped:Connect(function()
+	if getgenv().Terminatorfarmstate and game:GetService("Workspace").NPC.SkeleBoss.SkeleBoss then
+        character.HumanoidRootPart.CFrame = game:GetService("Workspace").NPC.SkeleBoss.SkeleBoss.LowerTorso.CFrame
+    end
+end)
+
+Bossfarmsection:NewToggle("Robotron Farm", "Autofarms the Robotron boss", function(state)
+    getgenv().Robotronfarmstate = state
+end)
+
+
+
+game:GetService("RunService").RenderStepped:Connect(function()
+	if getgenv().Robotronfarmstate and game:GetService("Workspace").NPC.SlumBoss.SlumBoss then
+        character.HumanoidRootPart.CFrame = game:GetService("Workspace").NPC.SlumBoss.SlumBoss.LowerTorso.CFrame
+    end
+end)
+
